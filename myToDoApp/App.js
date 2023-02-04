@@ -14,13 +14,20 @@ import { theme } from "./colors";
 import { Fontisto } from "@expo/vector-icons";
 
 const STORAGE_KEY = "@toDos";
+const WORKTAB_ON_KEY = "@WorkTab";
 
 export default function App() {
   const [working, setWorking] = useState(true);
   const [toDos, setToDos] = useState({});
   const [text, setText] = useState("");
-  const travel = () => setWorking(false);
-  const work = () => setWorking(true);
+  const travel = () => {
+    setWorking(false);
+    AsyncStorage.setItem(WORKTAB_ON_KEY, "false");
+  };
+  const work = () => {
+    setWorking(true);
+    AsyncStorage.setItem(WORKTAB_ON_KEY, "true");
+  };
   const onChangeText = (payload) => setText(payload);
   const deleteTodo = async (key) => {
     Alert.alert("Delete To Do", "Are you sure?", [
@@ -45,16 +52,52 @@ export default function App() {
     const s = await AsyncStorage.getItem(STORAGE_KEY);
     setToDos(JSON.parse(s));
   };
+  const loadTabinfo = async () => {
+    const s = await AsyncStorage.getItem(WORKTAB_ON_KEY);
+    if (JSON.parse(s) == true) {
+      work();
+    } else travel();
+  };
   useEffect(() => {
     loadToDos();
+    loadTabinfo();
+    console.log(toDos);
   }, []);
   const addToDo = async () => {
     if (text === "") return;
     //save to do
-    const newToDos = { ...toDos, [Date.now()]: { text, working } };
+    const newToDos = {
+      ...toDos,
+      [Date.now()]: { text, working, checkBoxName: "checkbox-passive" },
+    };
     setToDos(newToDos);
     await saveToDos(newToDos);
     setText("");
+  };
+  const checkDoneTodo = async (key) => {
+    var newCheckBoxName = "";
+    if (toDos[key].checkBoxName == "checkbox-passive")
+      newCheckBoxName = "checkbox-active";
+    else newCheckBoxName = "checkbox-passive";
+    const newToDos = { ...toDos };
+    newToDos[key].checkBoxName = newCheckBoxName;
+    setToDos(newToDos);
+    saveToDos(newToDos);
+  };
+  const toDoLongPress = (key, prevMsg) => {
+    Alert.prompt(
+      "Rename your todo",
+      "",
+      (msg) => {
+        const newToDos = { ...toDos };
+        newToDos[key].text = msg;
+        setToDos(newToDos);
+        saveToDos(newToDos);
+      },
+      "plain-text",
+      prevMsg,
+      "plain-text"
+    );
   };
   return (
     <View style={styles.container}>
@@ -92,7 +135,22 @@ export default function App() {
         {Object.keys(toDos).map((key) =>
           toDos[key].working === working ? (
             <View style={styles.toDo} key={key}>
-              <Text style={styles.toDoText}>{toDos[key].text}</Text>
+              <TouchableOpacity
+                style={{ flex: 1 }}
+                onPress={() => checkDoneTodo(key)}
+              >
+                <Fontisto
+                  name={toDos[key].checkBoxName}
+                  size={18}
+                  color="white"
+                ></Fontisto>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ flex: 5 }}
+                onLongPress={() => toDoLongPress(key, toDos[key].text)}
+              >
+                <Text style={styles.toDoText}>{toDos[key].text}</Text>
+              </TouchableOpacity>
               <TouchableOpacity onPress={() => deleteTodo(key)}>
                 <Fontisto name="trash" size={18} color={theme.grey} />
               </TouchableOpacity>
