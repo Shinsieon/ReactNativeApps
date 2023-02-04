@@ -2,7 +2,7 @@
 Any Apps developed by ReactNative
 
 ## myTodoApp
-### Nomad Coder 강의를 수강하며 따라 만든 TODO 앱입니다. 챌린지 코드도 추가했구요.
+### Nomad Coder 강의를 수강하며 따라 만든 TODO 앱. 챌린지 코드 추가.
 - 챌린지 과제 -
 1. 앱을 껐다 켜도 마지막 탭 기억하기
 : AsyncStorage 를 사용하여 탭이 전환될때 마다 setItem 후 useEffect() 로 앱 처음 구동할때 AsyncStorage.getItem 으로 가져와서 세팅
