@@ -50,7 +50,7 @@ export default function App() {
   };
   const loadToDos = async () => {
     const s = await AsyncStorage.getItem(STORAGE_KEY);
-    setToDos(JSON.parse(s));
+    if (s) setToDos(JSON.parse(s));
   };
   const loadTabinfo = async () => {
     const s = await AsyncStorage.getItem(WORKTAB_ON_KEY);
