@@ -10,10 +10,27 @@ import {
   Dimensions,
   TextInput,
   TouchableOpacity,
+  ScrollView,
+  Image,
 } from "react-native";
 import MapView from "react-native-maps";
 import { theme } from "./colors";
+import stationData from "./StationJSON.json";
+import { useFonts } from "expo-font";
 export default function App() {
+  const iconMap = {
+    "01호선": "./assets/line1Icon.svg",
+    "02호선": "./assets/line2Icon.png",
+    "03호선": "./assets/line3Icon.webp",
+    "04호선": "./assets/line4Icon.svg",
+    "05호선": "./assets/line5Icon.svg",
+    "06호선": "./assets/line6Icon.png",
+    "07호선": "./assets/line7Icon.png",
+    "08호선": "./assets/line8Icon.png",
+  };
+  const [fontsLoaded] = useFonts({
+    "Inter-Black": require("./assets/fonts/MerriweatherSans-Medium.ttf"),
+  });
   const [curLocation, setCurLocation] = useState({});
   const [ok, setOk] = useState(false);
   const refreshLocation = () => {
@@ -49,6 +66,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
+
       <MapView
         style={{
           width: Dimensions.get("window").width,
@@ -71,6 +89,20 @@ export default function App() {
             style={styles.infoInput}
           ></TextInput>
         </View>
+        <ScrollView style={styles.stationView}>
+          {stationData.map((item, idx) => {
+            if (!iconMap[item.line]) return;
+            return (
+              <View style={styles.stationItem} key={idx}>
+                <Image
+                  source={require(iconMap[item.line])}
+                  style={{ width: 40, height: 40 }}
+                />
+                <Text style={styles.stationText}>{item.line}</Text>
+              </View>
+            );
+          })}
+        </ScrollView>
       </View>
     </View>
   );
@@ -82,6 +114,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+    fontFamily: "Inter_900Black",
   },
   infoView: {
     position: "absolute",
@@ -103,7 +136,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   infoInput: {
-    backgroundColor: theme.grey,
+    backgroundColor: theme.bg,
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 30,
@@ -111,10 +144,25 @@ const styles = StyleSheet.create({
     height: 50,
     fontSize: 18,
     color: "white",
+    fontFamily: "Inter-Black",
   },
   circle: {
     position: "absolute",
     alignSelf: "center",
     marginTop: -30,
+  },
+  stationView: {
+    marginTop: 20,
+    paddingHorizontal: 30,
+  },
+  stationItem: {
+    flexDirection: "row",
+    width: "100%",
+    marginVertical: 10,
+    height: 30,
+    borderRadius: 10,
+  },
+  stationText: {
+    fontSize: 20,
   },
 });
